@@ -25,19 +25,63 @@
 //-----------------------------------------------------------------------------
 
 #include "def_format.h"
+#include <string.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 def_database_t* read_def_fd(FILE* fd) {
     def_database_t* retval = (def_database_t*)malloc(sizeof(def_database_t));
     retval->record_count = 0;
-    retval->records      = 0;
+    retval->records      = NULL;
+    char* line           = NULL;
+    size_t len          = 0;
+    ssize_t bytes_read;
+    unsigned int f_count = 0;
+
+    char* section = NULL;
+    char* in_line = NULL;
+    while((bytes_read = getline(&in_line,&len,fd)) != -1) {
+       line = strdup(in_line);
+       if(line[0]=='#') {
+          continue;
+       }
+       if(strncmp(line,"%%",2)==0) {
+             retval->records[retval->record_count-1].field_count--;
+             section = NULL;
+             continue;
+       }
+       if(line[strlen(line)-1]=='\n') {
+          line[strlen(line)-1]='\0';
+       }
+       if(strlen(line)<2) {
+          continue;
+       }
+       if(strchr(line,':')==NULL) {
+          section = strdup((const char*)line);
+          retval->record_count++;
+          retval->records = realloc((void*)retval->records,(sizeof(def_record_t)*retval->record_count));
+          retval->records[retval->record_count - 1].record_type = strdup(section);
+          retval->records[retval->record_count - 1].field_count = 0;
+          retval->records[retval->record_count - 1].fields      = NULL;
+       } else { 
+          f_count = retval->records[retval->record_count-1].field_count+1;
+          retval->records[retval->record_count - 1].field_count = f_count;
+          retval->records[retval->record_count - 1].fields = realloc((void*)retval->records[retval->record_count-1].fields,f_count);
+          retval->records[retval->record_count - 1].fields[f_count-1].field_name = strdup(strtok(line,":"));
+          retval->records[retval->record_count - 1].fields[f_count-1].field_val  = strdup(strtok(NULL,":"));
+       }   
+       free(line);
+       line = NULL;
+    }
+    retval->record_count--;
+    return retval;
 }
 
 def_database_t* load_def_file(char* filename) {
-    FILE* fd = fopen(filename,'r');
+    FILE* fd = fopen(filename,"r");
     def_database_t* retval = read_def_fd(fd);
-    close(fd);
+    fclose(fd);
     return retval;
 }
 

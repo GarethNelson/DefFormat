@@ -1,0 +1,14 @@
+# This is a simple test def file
+SERVER
+LISTENIP: 127.0.0.1
+LISTENPORT: 8080
+%%
+USER
+USERNAME: gareth
+PASSWORD: 1234
+%%
+USER
+USERNAME: bob
+PASSWORD: supersecret
+%%
+

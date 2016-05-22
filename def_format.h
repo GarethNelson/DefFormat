@@ -26,6 +26,7 @@
 
 #ifndef __DEF_FORMAT_H_
 #define __DEF_FORMAT_H_
+#include <stdio.h>
 
 typedef struct {
     char* field_name;
