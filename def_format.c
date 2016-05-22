@@ -47,7 +47,6 @@ def_database_t* read_def_fd(FILE* fd) {
           continue;
        }
        if(strncmp(line,"%%",2)==0) {
-             retval->records[retval->record_count-1].field_count--;
              section = NULL;
              continue;
        }
@@ -66,15 +65,14 @@ def_database_t* read_def_fd(FILE* fd) {
           retval->records[retval->record_count - 1].fields      = NULL;
        } else { 
           f_count = retval->records[retval->record_count-1].field_count+1;
-          retval->records[retval->record_count - 1].field_count = f_count;
-          retval->records[retval->record_count - 1].fields = realloc((void*)retval->records[retval->record_count-1].fields,f_count);
-          retval->records[retval->record_count - 1].fields[f_count-1].field_name = strdup(strtok(line,":"));
-          retval->records[retval->record_count - 1].fields[f_count-1].field_val  = strdup(strtok(NULL,":"));
+          retval->records[retval->record_count -1].field_count = f_count;
+          retval->records[retval->record_count -1].fields = realloc((void*)retval->records[retval->record_count-1].fields,sizeof(def_field_t)*f_count);
+          retval->records[retval->record_count -1].fields[f_count-1].field_name = strdup(strsep(&line,":"));
+          retval->records[retval->record_count -1].fields[f_count-1].field_val  = strdup(strsep(&line,":"));
        }   
        free(line);
        line = NULL;
     }
-    retval->record_count--;
     return retval;
 }
 

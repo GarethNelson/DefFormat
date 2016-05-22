@@ -5,10 +5,15 @@ LISTENPORT: 8080
 %%
 USER
 USERNAME: gareth
+REALNAME: Gareth Nelson
 PASSWORD: 1234
 %%
 USER
 USERNAME: bob
 PASSWORD: supersecret
+%%
+USER
+USERNAME: fred
+PASSWORD: anotherone
 %%
 
