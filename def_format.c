@@ -68,7 +68,7 @@ def_database_t* read_def_fd(FILE* fd) {
           retval->records[retval->record_count -1].field_count = f_count;
           retval->records[retval->record_count -1].fields = realloc((void*)retval->records[retval->record_count-1].fields,sizeof(def_field_t)*f_count);
           retval->records[retval->record_count -1].fields[f_count-1].field_name = strdup(strsep(&line,":"));
-          retval->records[retval->record_count -1].fields[f_count-1].field_val  = strdup(strsep(&line,":"));
+          retval->records[retval->record_count -1].fields[f_count-1].field_val  = strdup(strsep(&line,":"))+1; // +1 to get rid of leading whitespace
        }   
        free(line);
        line = NULL;
@@ -89,14 +89,52 @@ void write_def_fd(FILE* fd, def_database_t* database) {
 void save_def_file(char* filename, def_database_t* database) {
 }
 
-char* def_lookup_val(def_database_t* database, char* record_type, char* field_name) {
-      return NULL;
-}
-
-char* def_lookup_record(def_database_t* database, char* record_type, char* field_name, char* field_val) {
-      return NULL;
-}
-
 def_record_t* def_getall(def_database_t* database, char* record_type) {
-    return NULL;
+    // TODO - optimise this better
+    int c=0;
+    def_record_t* retval;
+    int i=0;
+    retval = (def_record_t*)malloc(sizeof(def_record_t)*database->record_count);
+    for(i=0; i<database->record_count; i++) {
+        if(strcmp(database->records[i].record_type,record_type)==0) {
+           retval[c] = database->records[i];
+           c++;
+        }
+    }
+    retval[0].type_count=c;
+    return retval;
 }
+
+char* def_lookup_val(def_database_t* database, char* record_type, char* field_name) {
+      char* retval = NULL;
+      // yes this is inefficient, but it's meant for cases where only one of this type exists
+      int f=0;
+      def_record_t* record = def_getall(database, record_type);
+      for(f=0; f< record->field_count; f++) {
+          if(strcmp(record->fields[f].field_name,field_name)==0) {
+             retval = record->fields[f].field_val;
+             break;
+          }
+      }
+      return retval;
+}
+
+def_record_t* def_lookup_record(def_database_t* database, char* record_type, char* field_name, char* field_val) {
+      def_record_t* retval = (def_record_t*)NULL;
+      def_record_t* records = def_getall(database,record_type);
+      int f=0;
+      int rec=0;
+      for(rec=0; rec < records->type_count; rec++) {
+        for(f=0; f< records[rec].field_count; f++) {
+            if(strcmp(records[rec].fields[f].field_name,field_name)==0) {
+               if(strcmp(records[rec].fields[f].field_val,field_val)==0) {
+                  retval = &(records[rec]);
+                  return retval;
+               }
+            }
+        }
+      }
+      return retval;
+}
+
+

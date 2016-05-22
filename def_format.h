@@ -37,6 +37,7 @@ typedef struct {
     char* record_type;
     unsigned int field_count;
     def_field_t* fields;
+    unsigned int type_count; // used by def_getall
 } def_record_t;
 
 typedef struct {
@@ -58,10 +59,11 @@ char* def_lookup_val(def_database_t* database, char* record_type, char* field_na
 
 // Lookup a particular record by searching for a field with the specified value
 //  Useful for things such as locating a user by username etc
-char* def_lookup_record(def_database_t* database, char* record_type, char* field_name, char* field_val);
+def_record_t* def_lookup_record(def_database_t* database, char* record_type, char* field_name, char* field_val);
 
 // Returns a dynamically allocated array consisting of all the records of the specified type
 // It is the caller's responsibility to free() the array
+// The first record in the array will have type_count set to the count of records returned
 def_record_t* def_getall(def_database_t* database, char* record_type);
 
 #endif
