@@ -84,9 +84,23 @@ def_database_t* load_def_file(char* filename) {
 }
 
 void write_def_fd(FILE* fd, def_database_t* database) {
+     int rec=0;
+     int f=0;
+     for(rec=0; rec< database->record_count; rec++) {
+         fprintf(fd,"%s\n",database->records[rec].record_type);
+         for(f=0; f< database->records[rec].field_count; f++) {
+             fprintf(fd,"%s: %s\n",database->records[rec].fields[f].field_name,
+                                   database->records[rec].fields[f].field_val);
+         }
+         fprintf(fd,"%%%%\n");
+     }
+     fprintf(fd,"\n"); 
 }
 
 void save_def_file(char* filename, def_database_t* database) {
+     FILE* fd = fopen(filename,"w");
+     write_def_fd(fd, database);
+     fclose(fd);
 }
 
 def_record_t* def_getall(def_database_t* database, char* record_type) {
