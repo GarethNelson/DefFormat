@@ -45,22 +45,22 @@ typedef struct {
 
 // Load a database into memory from a file or a file descriptor
 // Note that this does NOT close the file descriptor for you
-def_database_t read_def_fd(FILE* fd);
-def_database_t load_def_file(char* filename);
+def_database_t* read_def_fd(FILE* fd);
+def_database_t* load_def_file(char* filename);
 
 // Write out a database to disc
-write_def_fd(FILE* fd, def_database_t database);
-save_def_file(char* filename, def_database_t database);
+void write_def_fd(FILE* fd, def_database_t* database);
+void save_def_file(char* filename, def_database_t* database);
 
 // Lookup a particular value in the first record of the specified type
-char* def_lookup_val(def_database_t database, char* record_type, char* field_name);
+char* def_lookup_val(def_database_t* database, char* record_type, char* field_name);
 
 // Lookup a particular record by searching for a field with the specified value
 //  Useful for things such as locating a user by username etc
-char* def_lookup_record(def_database_t database, char* record_type, char* field_name, char* field_val);
+char* def_lookup_record(def_database_t* database, char* record_type, char* field_name, char* field_val);
 
 // Returns a dynamically allocated array consisting of all the records of the specified type
 // It is the caller's responsibility to free() the array
-def_record_t* def_getall(def_database_t database, char* record_type);
+def_record_t* def_getall(def_database_t* database, char* record_type);
 
 #endif
